@@ -2,10 +2,11 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table
 public class Employee {
-
     @Id
     @SequenceGenerator(
             name = "employee_sequence",
@@ -20,6 +21,9 @@ public class Employee {
     private String name;
     private String jobTitle;
     private Double annualSalary;
+    private Double vacationHours;
+    private String emailAddress;
+
 
     /*
     @Transient
@@ -83,6 +87,7 @@ public class Employee {
     public void setAnnualSalary(Double annualSalary) {
         this.annualSalary = annualSalary;
     }
+
 
     @Override
     public String toString() {
