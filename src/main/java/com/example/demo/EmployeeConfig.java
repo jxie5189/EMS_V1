@@ -17,11 +17,11 @@ public class EmployeeConfig {
         return args -> {
             Employee jack = new Employee("jack", "software developer I", 100000.00);
             Employee john  = new Employee("john", "software developer II", 120000.00);
-
+            Employee joe = new Employee();
 
 
             employeeRepositoryrepository.saveAll(
-                    List.of(jack, john)
+                    List.of(jack, john, joe)
             );
 
 ;
