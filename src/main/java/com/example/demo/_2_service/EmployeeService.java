@@ -1,27 +1,25 @@
 package com.example.demo._2_service;
 
 import com.example.demo._3_dao.EmployeeRepository;
-import com.example.demo._3_dao.Request_VacationRepository;
+import com.example.demo._4_exception.NoEmployeeFoundException;
 import com.example.demo.model.Employee;
-import com.example.demo.model.Request_Vacation;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class EmployeeService {
 
     private EmployeeRepository employeeRepository;
-    private Request_VacationRepository requestVacationRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, Request_VacationRepository requestVacationRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
-        this.requestVacationRepository = requestVacationRepository;
 
     }
 
@@ -37,29 +35,43 @@ public class EmployeeService {
         employeeRepository.save(employee);
     }
 
-    public void deleteEmployee(Long employeeId) {
+    public String deleteEmployee(Long employeeId) {
         boolean employeeExist = employeeRepository.existsById(employeeId);
         if (!employeeExist){
             throw new IllegalStateException("Employee does not exist");
         }
         employeeRepository.deleteById(employeeId);
-    }
-
-    public void makeVacationRequest(LocalDate startDate,
-                                    LocalDate endDate,
-                                    LocalDate returnToWorkDate){
-        Request_Vacation vacayReqeust = new Request_Vacation(startDate, endDate, returnToWorkDate);
-        requestVacationRepository.save(vacayReqeust);
-
+        return "Employee Id "+employeeId+" has been deleted";
     }
 
 
-    //non-query based method
+
+
+    //non-query based method; use setters to automatically upate the entity instead of using JPA
+    //works via url inseration
     @Transactional
     public void updateEmployeeName(Long employeeId, String name) {
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new NoEmployeeFoundException(employeeId));
 
-        Employee employee = employeeRepository.findById(employeeId).get();
+        if(name != null && name.length() > 0 && !Objects.equals(employee.getName(), name)){
+            employee.setName(name);
+        }
 
-        employee.setName(name);
+        employeeRepository.save(employee);
+    }
+
+    public void updateEmployeeJobTitle(Long employeeId, String newJobTitle){
+        Employee employee = employeeRepository.findEmployeeById(employeeId).get();
+        employee.setJobTitle(newJobTitle);
+        employeeRepository.save(employee);
+    }
+
+    public Optional<Employee> getEmployeeById(Long id) {
+        return employeeRepository.findEmployeeById(id);
+    }
+
+    public Employee save(Employee employee) {
+        employeeRepository.save(employee);
+        return employee;
     }
 }
